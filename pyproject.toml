@@ -1,13 +1,13 @@
 [project]
-name = "gnaww_sdk"
+name = "gnaww-sdk"
 version = "0.1.0"
-description = "Gnaww Developer API"
+description = "Official Python SDK for the Gnaww print intelligence API."
 authors = [
-  {name = "Gnaww SDK Community",email = "team@jawwws.org"},
+  {name = "Jawwws Ltd"},
 ]
 readme = "README.md"
-keywords = ["OpenAPI", "gnaww-sdk", "Gnaww Developer API"]
-requires-python = ">=3.9"
+keywords = ["gnaww", "print", "sdk", "api"]
+requires-python = ">=3.11"
 
 dependencies = [
   "urllib3 (>=2.1.0,<3.0.0)",
@@ -17,7 +17,9 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/GIT_USER_ID/GIT_REPO_ID"
+Repository = "https://github.com/jawwws/gnaww-sdk-python"
+Homepage = "https://gnaww.io"
+Documentation = "https://developer.gnaww.io"
 
 [tool.poetry]
 requires-poetry = ">=2.0"
