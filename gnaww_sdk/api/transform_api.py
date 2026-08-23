@@ -4,9 +4,7 @@
     Reviewed public print-intelligence contract for direct HTTP, CLI, SDK and MCP consumers. Capability fit is not price, live availability, producer acceptance or an order.
 
     The version of the OpenAPI document: 0.1
-    Gnaww SDK
 
-    Do not edit the class manually.
 """  # noqa: E501
 
 
@@ -26,11 +24,7 @@ from gnaww_sdk.rest import RESTResponseType
 
 
 class TransformApi:
-    """NOTE: This class is auto Gnaww SDK
-    Ref: https://gnaww-sdk.tech
-
-    Do not edit the class manually.
-    """
+    """Public Gnaww API client."""
 
     def __init__(self, api_client=None) -> None:
         if api_client is None:

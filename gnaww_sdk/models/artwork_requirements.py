@@ -6,9 +6,7 @@
     Reviewed public print-intelligence contract for direct HTTP, CLI, SDK and MCP consumers. Capability fit is not price, live availability, producer acceptance or an order.
 
     The version of the OpenAPI document: 0.1
-    Gnaww SDK
 
-    Do not edit the class manually.
 """  # noqa: E501
 
 
