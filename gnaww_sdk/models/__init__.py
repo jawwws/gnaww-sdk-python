@@ -1,0 +1,114 @@
+# coding: utf-8
+
+# flake8: noqa
+"""
+    Gnaww Developer API
+
+    Reviewed public print-intelligence contract for direct HTTP, CLI, SDK and MCP consumers. Capability fit is not price, live availability, producer acceptance or an order.
+
+    The version of the OpenAPI document: 0.1
+    Gnaww SDK
+
+    Do not edit the class manually.
+"""  # noqa: E501
+
+# import models into model package
+from gnaww_sdk.models.apparel_decoration_options import ApparelDecorationOptions
+from gnaww_sdk.models.apparel_options import ApparelOptions
+from gnaww_sdk.models.artwork_requirements import ArtworkRequirements
+from gnaww_sdk.models.availability_capability import AvailabilityCapability
+from gnaww_sdk.models.benchmark_quantity_guidance import BenchmarkQuantityGuidance
+from gnaww_sdk.models.book_document_options import BookDocumentOptions
+from gnaww_sdk.models.capability_evidence import CapabilityEvidence
+from gnaww_sdk.models.colour_capability import ColourCapability
+from gnaww_sdk.models.commercial_print_options import CommercialPrintOptions
+from gnaww_sdk.models.continue_print_requirement_interpretation_default_response import ContinuePrintRequirementInterpretationDefaultResponse
+from gnaww_sdk.models.continue_print_requirement_interpretation_default_response_error import ContinuePrintRequirementInterpretationDefaultResponseError
+from gnaww_sdk.models.continue_print_requirement_request import ContinuePrintRequirementRequest
+from gnaww_sdk.models.continue_print_requirement_response import ContinuePrintRequirementResponse
+from gnaww_sdk.models.controlled_interpretation_state import ControlledInterpretationState
+from gnaww_sdk.models.custom_dimension_capability import CustomDimensionCapability
+from gnaww_sdk.models.decoration_area_capability import DecorationAreaCapability
+from gnaww_sdk.models.delivery_destination import DeliveryDestination
+from gnaww_sdk.models.dimension_capability import DimensionCapability
+from gnaww_sdk.models.fabric_homewares_capability_options import FabricHomewaresCapabilityOptions
+from gnaww_sdk.models.fabric_homewares_options import FabricHomewaresOptions
+from gnaww_sdk.models.finished_size import FinishedSize
+from gnaww_sdk.models.finishing import Finishing
+from gnaww_sdk.models.folded_leaflet_options import FoldedLeafletOptions
+from gnaww_sdk.models.fulfilment_match_result import FulfilmentMatchResult
+from gnaww_sdk.models.fulfilment_requirement import FulfilmentRequirement
+from gnaww_sdk.models.gjs import Gjs
+from gnaww_sdk.models.gjs1 import Gjs1
+from gnaww_sdk.models.grammage_requirement import GrammageRequirement
+from gnaww_sdk.models.grounded_product_meaning import GroundedProductMeaning
+from gnaww_sdk.models.health_response import HealthResponse
+from gnaww_sdk.models.intent_classification_response import IntentClassificationResponse
+from gnaww_sdk.models.intent_plan_evidence import IntentPlanEvidence
+from gnaww_sdk.models.intent_provider_metadata import IntentProviderMetadata
+from gnaww_sdk.models.interpret_print_requirement_default_response import InterpretPrintRequirementDefaultResponse
+from gnaww_sdk.models.interpret_print_requirement_default_response_error import InterpretPrintRequirementDefaultResponseError
+from gnaww_sdk.models.interpret_print_requirement_request import InterpretPrintRequirementRequest
+from gnaww_sdk.models.interpret_print_requirement_response import InterpretPrintRequirementResponse
+from gnaww_sdk.models.issue import Issue
+from gnaww_sdk.models.issue_set import IssueSet
+from gnaww_sdk.models.match_difference import MatchDifference
+from gnaww_sdk.models.match_print_demand_default_response import MatchPrintDemandDefaultResponse
+from gnaww_sdk.models.match_print_demand_request import MatchPrintDemandRequest
+from gnaww_sdk.models.match_print_demand_response import MatchPrintDemandResponse
+from gnaww_sdk.models.match_print_demand_universe_request import MatchPrintDemandUniverseRequest
+from gnaww_sdk.models.match_print_demand_universe_response import MatchPrintDemandUniverseResponse
+from gnaww_sdk.models.match_recipe_request import MatchRecipeRequest
+from gnaww_sdk.models.match_recipe_response import MatchRecipeResponse
+from gnaww_sdk.models.material_capability import MaterialCapability
+from gnaww_sdk.models.material_composition_part import MaterialCompositionPart
+from gnaww_sdk.models.personalisation_capability import PersonalisationCapability
+from gnaww_sdk.models.physical_requirement_decision import PhysicalRequirementDecision
+from gnaww_sdk.models.print_component import PrintComponent
+from gnaww_sdk.models.print_job_specification import PrintJobSpecification
+from gnaww_sdk.models.print_job_specification_v04 import PrintJobSpecificationV04
+from gnaww_sdk.models.print_spec import PrintSpec
+from gnaww_sdk.models.producer_book_document_options import ProducerBookDocumentOptions
+from gnaww_sdk.models.producer_capability_resource import ProducerCapabilityResource
+from gnaww_sdk.models.producer_component_capability import ProducerComponentCapability
+from gnaww_sdk.models.producer_finishing_capability import ProducerFinishingCapability
+from gnaww_sdk.models.producer_folded_leaflet_options import ProducerFoldedLeafletOptions
+from gnaww_sdk.models.producer_process_capability import ProducerProcessCapability
+from gnaww_sdk.models.producer_product_capability import ProducerProductCapability
+from gnaww_sdk.models.producer_product_option_capability import ProducerProductOptionCapability
+from gnaww_sdk.models.producer_product_reference import ProducerProductReference
+from gnaww_sdk.models.product_meaning_decision_point import ProductMeaningDecisionPoint
+from gnaww_sdk.models.product_meaning_family_context import ProductMeaningFamilyContext
+from gnaww_sdk.models.product_options import ProductOptions
+from gnaww_sdk.models.product_pack_benchmark_reference import ProductPackBenchmarkReference
+from gnaww_sdk.models.product_pack_clarification import ProductPackClarification
+from gnaww_sdk.models.product_pack_recommendation import ProductPackRecommendation
+from gnaww_sdk.models.product_pack_response import ProductPackResponse
+from gnaww_sdk.models.promotional_goods_capability_options import PromotionalGoodsCapabilityOptions
+from gnaww_sdk.models.promotional_goods_options import PromotionalGoodsOptions
+from gnaww_sdk.models.public_clarification_answer import PublicClarificationAnswer
+from gnaww_sdk.models.public_clarification_option import PublicClarificationOption
+from gnaww_sdk.models.public_clarification_question import PublicClarificationQuestion
+from gnaww_sdk.models.public_fulfilment_state import PublicFulfilmentState
+from gnaww_sdk.models.public_match_target_request import PublicMatchTargetRequest
+from gnaww_sdk.models.public_match_target_state import PublicMatchTargetState
+from gnaww_sdk.models.public_producer_universe_candidate import PublicProducerUniverseCandidate
+from gnaww_sdk.models.public_recipe_state import PublicRecipeState
+from gnaww_sdk.models.public_spec_match_readiness import PublicSpecMatchReadiness
+from gnaww_sdk.models.public_use_condition_review import PublicUseConditionReview
+from gnaww_sdk.models.quantity import Quantity
+from gnaww_sdk.models.quantity_range import QuantityRange
+from gnaww_sdk.models.recipe_resource import RecipeResource
+from gnaww_sdk.models.repeat_pattern_capability import RepeatPatternCapability
+from gnaww_sdk.models.resolve_recipe_request import ResolveRecipeRequest
+from gnaww_sdk.models.resolve_recipe_response import ResolveRecipeResponse
+from gnaww_sdk.models.resolved_recipe_match_state import ResolvedRecipeMatchState
+from gnaww_sdk.models.service_requirements import ServiceRequirements
+from gnaww_sdk.models.source_input import SourceInput
+from gnaww_sdk.models.spec_match_result import SpecMatchResult
+from gnaww_sdk.models.substrate import Substrate
+from gnaww_sdk.models.transform_request import TransformRequest
+from gnaww_sdk.models.transform_response import TransformResponse
+from gnaww_sdk.models.turnaround_capability import TurnaroundCapability
+from gnaww_sdk.models.use_requirement import UseRequirement
+from gnaww_sdk.models.washability_capability import WashabilityCapability
