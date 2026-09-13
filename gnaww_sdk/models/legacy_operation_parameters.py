@@ -18,28 +18,28 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, Optional
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class LegacyOperationParameters(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    Lossless v0.4 envelope for details awaiting typed v0.5 migration.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    kind: Optional[StrictStr] = 'legacy'
+    source_name: Annotated[str, Field(min_length=1, strict=True)]
+    source_notes: Optional[StrictStr] = None
+    source_process: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["kind", "source_name", "source_notes", "source_process"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('kind')
+    def kind_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if value not in set(['legacy']):
+            raise ValueError("must be one of enum values ('legacy')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +60,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of LegacyOperationParameters from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +81,21 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # set to None if source_notes (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
+        if self.source_notes is None and "source_notes" in self.model_fields_set:
+            _dict['source_notes'] = None
 
-        # set to None if service_class (nullable) is None
+        # set to None if source_process (nullable) is None
         # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.source_process is None and "source_process" in self.model_fields_set:
+            _dict['source_process'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of LegacyOperationParameters from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +103,9 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "kind": obj.get("kind") if obj.get("kind") is not None else 'legacy',
+            "source_name": obj.get("source_name"),
+            "source_notes": obj.get("source_notes"),
+            "source_process": obj.get("source_process")
         })
         return _obj

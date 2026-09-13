@@ -17,28 +17,34 @@ import pprint
 import re  # noqa: F401
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Optional
-from gnaww_sdk.models.print_job_specification import PrintJobSpecification
-from gnaww_sdk.models.print_job_specification_v04 import PrintJobSpecificationV04
+from gnaww_sdk.models.circle2_d import Circle2D
+from gnaww_sdk.models.line2_d import Line2D
+from gnaww_sdk.models.path_reference import PathReference
+from gnaww_sdk.models.rectangle2_d import Rectangle2D
 from typing import Union, Any, List, Set, TYPE_CHECKING, Optional, Dict
 from typing_extensions import Literal, Self
 from pydantic import Field
 
-GJS_ANY_OF_SCHEMAS = ["PrintJobSpecification", "PrintJobSpecificationV04"]
+CONTOUR_ANY_OF_SCHEMAS = ["Circle2D", "Line2D", "PathReference", "Rectangle2D"]
 
-class Gjs(BaseModel):
+class Contour(BaseModel):
     """
-    Gjs
+    Contour
     """
 
-    # data type: PrintJobSpecificationV04
-    anyof_schema_1_validator: Optional[PrintJobSpecificationV04] = None
-    # data type: PrintJobSpecification
-    anyof_schema_2_validator: Optional[PrintJobSpecification] = None
+    # data type: Line2D
+    anyof_schema_1_validator: Optional[Line2D] = None
+    # data type: Rectangle2D
+    anyof_schema_2_validator: Optional[Rectangle2D] = None
+    # data type: Circle2D
+    anyof_schema_3_validator: Optional[Circle2D] = None
+    # data type: PathReference
+    anyof_schema_4_validator: Optional[PathReference] = None
     if TYPE_CHECKING:
-        actual_instance: Optional[Union[PrintJobSpecification, PrintJobSpecificationV04]] = None
+        actual_instance: Optional[Union[Circle2D, Line2D, PathReference, Rectangle2D]] = None
     else:
         actual_instance: Any = None
-    any_of_schemas: Set[str] = { "PrintJobSpecification", "PrintJobSpecificationV04" }
+    any_of_schemas: Set[str] = { "Circle2D", "Line2D", "PathReference", "Rectangle2D" }
 
     model_config = {
         "validate_assignment": True,
@@ -57,23 +63,38 @@ class Gjs(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_anyof(cls, v):
-        instance = Gjs.model_construct()
+        if v is None:
+            return v
+
+        instance = Contour.model_construct()
         error_messages = []
-        # validate data type: PrintJobSpecificationV04
-        if not isinstance(v, PrintJobSpecificationV04):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `PrintJobSpecificationV04`")
+        # validate data type: Line2D
+        if not isinstance(v, Line2D):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `Line2D`")
         else:
             return v
 
-        # validate data type: PrintJobSpecification
-        if not isinstance(v, PrintJobSpecification):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `PrintJobSpecification`")
+        # validate data type: Rectangle2D
+        if not isinstance(v, Rectangle2D):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `Rectangle2D`")
+        else:
+            return v
+
+        # validate data type: Circle2D
+        if not isinstance(v, Circle2D):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `Circle2D`")
+        else:
+            return v
+
+        # validate data type: PathReference
+        if not isinstance(v, PathReference):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PathReference`")
         else:
             return v
 
         if error_messages:
             # no match
-            raise ValueError("No match found when setting the actual_instance in Gjs with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting the actual_instance in Contour with anyOf schemas: Circle2D, Line2D, PathReference, Rectangle2D. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -85,23 +106,38 @@ class Gjs(BaseModel):
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
         instance = cls.model_construct()
+        if json_str is None:
+            return instance
+
         error_messages = []
-        # anyof_schema_1_validator: Optional[PrintJobSpecificationV04] = None
+        # anyof_schema_1_validator: Optional[Line2D] = None
         try:
-            instance.actual_instance = PrintJobSpecificationV04.from_json(json_str)
+            instance.actual_instance = Line2D.from_json(json_str)
             return instance
         except (ValidationError, ValueError) as e:
              error_messages.append(str(e))
-        # anyof_schema_2_validator: Optional[PrintJobSpecification] = None
+        # anyof_schema_2_validator: Optional[Rectangle2D] = None
         try:
-            instance.actual_instance = PrintJobSpecification.from_json(json_str)
+            instance.actual_instance = Rectangle2D.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+             error_messages.append(str(e))
+        # anyof_schema_3_validator: Optional[Circle2D] = None
+        try:
+            instance.actual_instance = Circle2D.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+             error_messages.append(str(e))
+        # anyof_schema_4_validator: Optional[PathReference] = None
+        try:
+            instance.actual_instance = PathReference.from_json(json_str)
             return instance
         except (ValidationError, ValueError) as e:
              error_messages.append(str(e))
 
         if error_messages:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Gjs with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Contour with anyOf schemas: Circle2D, Line2D, PathReference, Rectangle2D. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -115,7 +151,7 @@ class Gjs(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], PrintJobSpecification, PrintJobSpecificationV04]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], Circle2D, Line2D, PathReference, Rectangle2D]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

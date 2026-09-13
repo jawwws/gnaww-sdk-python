@@ -4,20 +4,31 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar, cast
+from typing import Any, Generic, TypedDict, TypeVar, cast
 
 from gnaww_sdk.api.interpretation_api import InterpretationApi
 from gnaww_sdk.api.recipes_api import RecipesApi
 from gnaww_sdk.api_client import ApiClient
 from gnaww_sdk.configuration import Configuration
 from gnaww_sdk.exceptions import ApiException
+from gnaww_sdk.models.continue_interpretation_request_v02 import (
+    ContinueInterpretationRequestV02,
+)
 from gnaww_sdk.models.interpret_print_requirement_request import (
     InterpretPrintRequirementRequest,
 )
+from gnaww_sdk.models.interpretation_result_v02 import InterpretationResultV02
 from gnaww_sdk.models.match_recipe_request import MatchRecipeRequest
 from gnaww_sdk.models.resolve_recipe_request import ResolveRecipeRequest
 
 T = TypeVar("T")
+
+
+class GnawwClarificationAnswer(TypedDict):
+    """One public continuation answer keyed by a Gnaww question identity."""
+
+    question_id: str
+    value: str
 
 
 @dataclass(frozen=True)
@@ -64,6 +75,8 @@ class GnawwClient:
         configuration.api_key["GnawwApiKey"] = api_key
 
         self._api_client = ApiClient(configuration)
+        self._api_client.set_default_header("X-Gnaww-Source-Channel", "sdk")
+        self._api_client.set_default_header("X-Gnaww-Client-Id", "gnaww-python-sdk")
         if workspace_id is not None:
             self._api_client.set_default_header(
                 "X-Gnaww-Workspace-Id",
@@ -80,12 +93,15 @@ class GnawwClient:
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         self._api_client.__exit__(exc_type, exc, traceback)
 
-    def consume(self, requirement: str) -> Any:
-        """Interpret one ordinary-language requirement."""
+    def consume(self, requirement: str) -> InterpretationResultV02:
+        """Interpret messy print intent into the job-centric public result."""
 
         return self.consume_detailed(requirement).data
 
-    def consume_detailed(self, requirement: str) -> GnawwResponse[Any]:
+    def consume_detailed(
+        self,
+        requirement: str,
+    ) -> GnawwResponse[InterpretationResultV02]:
         request = InterpretPrintRequirementRequest.from_dict(
             {
                 "source": {
@@ -95,10 +111,47 @@ class GnawwClient:
                 "gjs_version": "0.4",
             }
         )
-        return self._call(
-            lambda: self._interpretation.interpret_print_requirement_with_http_info(
-                request
-            )
+        return cast(
+            GnawwResponse[InterpretationResultV02],
+            self._call(
+                lambda: self._interpretation.interpret_print_requirement_with_http_info(
+                    request
+                )
+            ),
+        )
+
+    def continue_requirement(
+        self,
+        requirement: str,
+        answers: list[GnawwClarificationAnswer],
+    ) -> InterpretationResultV02:
+        """Continue using public question IDs and return the same v0.2 result shape."""
+
+        return self.continue_requirement_detailed(requirement, answers).data
+
+    def continue_requirement_detailed(
+        self,
+        requirement: str,
+        answers: list[GnawwClarificationAnswer],
+    ) -> GnawwResponse[InterpretationResultV02]:
+        """Continue interpretation while preserving public truth and trace state."""
+
+        request = ContinueInterpretationRequestV02.from_dict(
+            {
+                "source": {
+                    "type": "natural_language",
+                    "raw_text": requirement,
+                },
+                "gjs_version": "0.4",
+                "answers": answers,
+            }
+        )
+        operation = (
+            self._interpretation.continue_print_requirement_interpretation_with_http_info
+        )
+        return cast(
+            GnawwResponse[InterpretationResultV02],
+            self._call(lambda: operation(request)),
         )
 
     def get_recipe(self, recipe_id: str) -> Any:

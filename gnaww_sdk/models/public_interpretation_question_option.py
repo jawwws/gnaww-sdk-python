@@ -15,30 +15,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PublicClarificationAnswer(BaseModel):
+class PublicInterpretationQuestionOption(BaseModel):
     """
-    One explicit buyer answer to a Gnaww-owned clarification.
+    One controlled option for a public clarification question.
     """ # noqa: E501
-    key: Annotated[str, Field(strict=True)]
+    label: Annotated[str, Field(min_length=1, strict=True)]
     value: Annotated[str, Field(min_length=1, strict=True)]
-    __properties: ClassVar[List[str]] = ["key", "value"]
-
-    @field_validator('key')
-    def key_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not isinstance(value, str):
-            value = str(value)
-
-        if not re.match(r"^[a-z][a-z0-9_.\[\]]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9_.\[\]]*$/")
-        return value
+    __properties: ClassVar[List[str]] = ["label", "value"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -58,7 +48,7 @@ class PublicClarificationAnswer(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PublicClarificationAnswer from a JSON string"""
+        """Create an instance of PublicInterpretationQuestionOption from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -83,7 +73,7 @@ class PublicClarificationAnswer(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PublicClarificationAnswer from a dict"""
+        """Create an instance of PublicInterpretationQuestionOption from a dict"""
         if obj is None:
             return None
 
@@ -91,7 +81,7 @@ class PublicClarificationAnswer(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "key": obj.get("key"),
+            "label": obj.get("label"),
             "value": obj.get("value")
         })
         return _obj

@@ -16,28 +16,26 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
-from gnaww_sdk.models.intent_provider_metadata import IntentProviderMetadata
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ControlledInterpretationState(BaseModel):
+class SpecificationRecipeReference(BaseModel):
     """
-    Safe public truth about controlled semantic interpretation.
+    Recipe eligibility for the retained demand without changing Recipe semantics.
     """ # noqa: E501
-    attempted: StrictBool
-    error: Optional[StrictStr] = None
-    metadata: Optional[IntentProviderMetadata] = None
-    provider: Optional[StrictStr] = None
+    persisted: Optional[StrictBool] = False
+    reasons: Optional[List[StrictStr]] = None
+    recipe_id: Optional[StrictStr] = None
     status: StrictStr
-    __properties: ClassVar[List[str]] = ["attempted", "error", "metadata", "provider", "status"]
+    __properties: ClassVar[List[str]] = ["persisted", "reasons", "recipe_id", "status"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['not_required', 'completed', 'unavailable', 'failed']):
-            raise ValueError("must be one of enum values ('not_required', 'completed', 'unavailable', 'failed')")
+        if value not in set(['eligible', 'ineligible']):
+            raise ValueError("must be one of enum values ('eligible', 'ineligible')")
         return value
 
     model_config = ConfigDict(
@@ -58,7 +56,7 @@ class ControlledInterpretationState(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ControlledInterpretationState from a JSON string"""
+        """Create an instance of SpecificationRecipeReference from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -79,29 +77,16 @@ class ControlledInterpretationState(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of metadata
-        if self.metadata:
-            _dict['metadata'] = self.metadata.to_dict()
-        # set to None if error (nullable) is None
+        # set to None if recipe_id (nullable) is None
         # and model_fields_set contains the field
-        if self.error is None and "error" in self.model_fields_set:
-            _dict['error'] = None
-
-        # set to None if metadata (nullable) is None
-        # and model_fields_set contains the field
-        if self.metadata is None and "metadata" in self.model_fields_set:
-            _dict['metadata'] = None
-
-        # set to None if provider (nullable) is None
-        # and model_fields_set contains the field
-        if self.provider is None and "provider" in self.model_fields_set:
-            _dict['provider'] = None
+        if self.recipe_id is None and "recipe_id" in self.model_fields_set:
+            _dict['recipe_id'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ControlledInterpretationState from a dict"""
+        """Create an instance of SpecificationRecipeReference from a dict"""
         if obj is None:
             return None
 
@@ -109,10 +94,9 @@ class ControlledInterpretationState(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "attempted": obj.get("attempted"),
-            "error": obj.get("error"),
-            "metadata": IntentProviderMetadata.from_dict(obj["metadata"]) if obj.get("metadata") is not None else None,
-            "provider": obj.get("provider"),
+            "persisted": obj.get("persisted") if obj.get("persisted") is not None else False,
+            "reasons": obj.get("reasons"),
+            "recipe_id": obj.get("recipe_id"),
             "status": obj.get("status")
         })
         return _obj

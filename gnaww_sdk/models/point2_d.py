@@ -15,26 +15,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
-from gnaww_sdk.models.fulfilment_requirement import FulfilmentRequirement
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, Optional, Union
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PublicFulfilmentState(BaseModel):
+class Point2D(BaseModel):
     """
-    Buyer fulfilment requirement alongside physical production demand.
+    Point in a component-local millimetre coordinate system.
     """ # noqa: E501
-    requirement: Optional[FulfilmentRequirement] = None
-    status: StrictStr
-    __properties: ClassVar[List[str]] = ["requirement", "status"]
+    kind: Optional[StrictStr] = 'point'
+    x_mm: Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]]
+    y_mm: Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]]
+    __properties: ClassVar[List[str]] = ["kind", "x_mm", "y_mm"]
 
-    @field_validator('status')
-    def status_validate_enum(cls, value):
+    @field_validator('kind')
+    def kind_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['not_required', 'needs_review', 'ready']):
-            raise ValueError("must be one of enum values ('not_required', 'needs_review', 'ready')")
+        if value is None:
+            return value
+
+        if value not in set(['point']):
+            raise ValueError("must be one of enum values ('point')")
         return value
 
     model_config = ConfigDict(
@@ -55,7 +59,7 @@ class PublicFulfilmentState(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PublicFulfilmentState from a JSON string"""
+        """Create an instance of Point2D from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,19 +80,11 @@ class PublicFulfilmentState(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of requirement
-        if self.requirement:
-            _dict['requirement'] = self.requirement.to_dict()
-        # set to None if requirement (nullable) is None
-        # and model_fields_set contains the field
-        if self.requirement is None and "requirement" in self.model_fields_set:
-            _dict['requirement'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PublicFulfilmentState from a dict"""
+        """Create an instance of Point2D from a dict"""
         if obj is None:
             return None
 
@@ -96,7 +92,8 @@ class PublicFulfilmentState(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "requirement": FulfilmentRequirement.from_dict(obj["requirement"]) if obj.get("requirement") is not None else None,
-            "status": obj.get("status")
+            "kind": obj.get("kind") if obj.get("kind") is not None else 'point',
+            "x_mm": obj.get("x_mm"),
+            "y_mm": obj.get("y_mm")
         })
         return _obj

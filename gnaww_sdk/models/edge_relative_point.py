@@ -16,30 +16,34 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
+from typing import Any, ClassVar, Dict, Union
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class EdgeRelativePoint(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    Point positioned from one horizontal and one vertical component edge.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    horizontal_edge: StrictStr
+    horizontal_offset_mm: Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]]
+    vertical_edge: StrictStr
+    vertical_offset_mm: Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]]
+    __properties: ClassVar[List[str]] = ["horizontal_edge", "horizontal_offset_mm", "vertical_edge", "vertical_offset_mm"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('horizontal_edge')
+    def horizontal_edge_validate_enum(cls, value):
         """Validates the enum"""
-        if value is None:
-            return value
+        if value not in set(['left', 'right']):
+            raise ValueError("must be one of enum values ('left', 'right')")
+        return value
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+    @field_validator('vertical_edge')
+    def vertical_edge_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['top', 'bottom']):
+            raise ValueError("must be one of enum values ('top', 'bottom')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +64,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of EdgeRelativePoint from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +85,11 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
-        # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
-
-        # set to None if service_class (nullable) is None
-        # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of EdgeRelativePoint from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +97,9 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "horizontal_edge": obj.get("horizontal_edge"),
+            "horizontal_offset_mm": obj.get("horizontal_offset_mm"),
+            "vertical_edge": obj.get("vertical_edge"),
+            "vertical_offset_mm": obj.get("vertical_offset_mm")
         })
         return _obj

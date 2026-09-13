@@ -15,31 +15,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, Optional
-from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class SurfaceOperationParameters(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    SurfaceOperationParameters
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    colour: Optional[StrictStr] = None
+    finish: Optional[StrictStr] = None
+    kind: Optional[StrictStr] = 'surface'
+    material: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["colour", "finish", "kind", "material"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('kind')
+    def kind_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if value not in set(['surface']):
+            raise ValueError("must be one of enum values ('surface')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +59,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of SurfaceOperationParameters from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +80,26 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # set to None if colour (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
+        if self.colour is None and "colour" in self.model_fields_set:
+            _dict['colour'] = None
 
-        # set to None if service_class (nullable) is None
+        # set to None if finish (nullable) is None
         # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.finish is None and "finish" in self.model_fields_set:
+            _dict['finish'] = None
+
+        # set to None if material (nullable) is None
+        # and model_fields_set contains the field
+        if self.material is None and "material" in self.model_fields_set:
+            _dict['material'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of SurfaceOperationParameters from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +107,9 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "colour": obj.get("colour"),
+            "finish": obj.get("finish"),
+            "kind": obj.get("kind") if obj.get("kind") is not None else 'surface',
+            "material": obj.get("material")
         })
         return _obj

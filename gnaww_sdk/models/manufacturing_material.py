@@ -15,28 +15,29 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
-from gnaww_sdk.models.app_models_producer_material_composition_part import AppModelsProducerMaterialCompositionPart
+from gnaww_sdk.models.app_models_manufacturing_geometry_material_composition_part import AppModelsManufacturingGeometryMaterialCompositionPart
+from gnaww_sdk.models.grammage_requirement import GrammageRequirement
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MaterialCapability(BaseModel):
+class ManufacturingMaterial(BaseModel):
     """
-    A canonical material or substrate capability.
+    Controlled material/substrate meaning for one component.
     """ # noqa: E501
     category: Optional[StrictStr] = 'unknown'
-    certifications: Optional[List[StrictStr]] = None
-    composition: Optional[List[AppModelsProducerMaterialCompositionPart]] = None
+    colour: Optional[StrictStr] = None
+    composition: Optional[List[AppModelsManufacturingGeometryMaterialCompositionPart]] = None
     finish: Optional[StrictStr] = None
-    maximum_weight_gsm: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    minimum_weight_gsm: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    name: StrictStr
-    standard_weights_gsm: Optional[List[StrictInt]] = None
+    grammage_requirement: Optional[GrammageRequirement] = None
+    name: Optional[StrictStr] = None
+    texture: Optional[StrictStr] = None
+    thickness_mm: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = None
     weight_gsm: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    __properties: ClassVar[List[str]] = ["category", "certifications", "composition", "finish", "maximum_weight_gsm", "minimum_weight_gsm", "name", "standard_weights_gsm", "weight_gsm"]
+    __properties: ClassVar[List[str]] = ["category", "colour", "composition", "finish", "grammage_requirement", "name", "texture", "thickness_mm", "weight_gsm"]
 
     @field_validator('category')
     def category_validate_enum(cls, value):
@@ -66,7 +67,7 @@ class MaterialCapability(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MaterialCapability from a JSON string"""
+        """Create an instance of ManufacturingMaterial from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -94,20 +95,38 @@ class MaterialCapability(BaseModel):
                 if _item_composition:
                     _items.append(_item_composition.to_dict())
             _dict['composition'] = _items
+        # override the default output from pydantic by calling `to_dict()` of grammage_requirement
+        if self.grammage_requirement:
+            _dict['grammage_requirement'] = self.grammage_requirement.to_dict()
+        # set to None if colour (nullable) is None
+        # and model_fields_set contains the field
+        if self.colour is None and "colour" in self.model_fields_set:
+            _dict['colour'] = None
+
         # set to None if finish (nullable) is None
         # and model_fields_set contains the field
         if self.finish is None and "finish" in self.model_fields_set:
             _dict['finish'] = None
 
-        # set to None if maximum_weight_gsm (nullable) is None
+        # set to None if grammage_requirement (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_weight_gsm is None and "maximum_weight_gsm" in self.model_fields_set:
-            _dict['maximum_weight_gsm'] = None
+        if self.grammage_requirement is None and "grammage_requirement" in self.model_fields_set:
+            _dict['grammage_requirement'] = None
 
-        # set to None if minimum_weight_gsm (nullable) is None
+        # set to None if name (nullable) is None
         # and model_fields_set contains the field
-        if self.minimum_weight_gsm is None and "minimum_weight_gsm" in self.model_fields_set:
-            _dict['minimum_weight_gsm'] = None
+        if self.name is None and "name" in self.model_fields_set:
+            _dict['name'] = None
+
+        # set to None if texture (nullable) is None
+        # and model_fields_set contains the field
+        if self.texture is None and "texture" in self.model_fields_set:
+            _dict['texture'] = None
+
+        # set to None if thickness_mm (nullable) is None
+        # and model_fields_set contains the field
+        if self.thickness_mm is None and "thickness_mm" in self.model_fields_set:
+            _dict['thickness_mm'] = None
 
         # set to None if weight_gsm (nullable) is None
         # and model_fields_set contains the field
@@ -118,7 +137,7 @@ class MaterialCapability(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MaterialCapability from a dict"""
+        """Create an instance of ManufacturingMaterial from a dict"""
         if obj is None:
             return None
 
@@ -127,13 +146,13 @@ class MaterialCapability(BaseModel):
 
         _obj = cls.model_validate({
             "category": obj.get("category") if obj.get("category") is not None else 'unknown',
-            "certifications": obj.get("certifications"),
-            "composition": [AppModelsProducerMaterialCompositionPart.from_dict(_item) for _item in obj["composition"]] if obj.get("composition") is not None else None,
+            "colour": obj.get("colour"),
+            "composition": [AppModelsManufacturingGeometryMaterialCompositionPart.from_dict(_item) for _item in obj["composition"]] if obj.get("composition") is not None else None,
             "finish": obj.get("finish"),
-            "maximum_weight_gsm": obj.get("maximum_weight_gsm"),
-            "minimum_weight_gsm": obj.get("minimum_weight_gsm"),
+            "grammage_requirement": GrammageRequirement.from_dict(obj["grammage_requirement"]) if obj.get("grammage_requirement") is not None else None,
             "name": obj.get("name"),
-            "standard_weights_gsm": obj.get("standard_weights_gsm"),
+            "texture": obj.get("texture"),
+            "thickness_mm": obj.get("thickness_mm"),
             "weight_gsm": obj.get("weight_gsm")
         })
         return _obj

@@ -17,7 +17,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict
-from gnaww_sdk.models.gjs1 import Gjs1
+from gnaww_sdk.models.gjs import Gjs
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -26,7 +26,7 @@ class ResolveRecipeRequest(BaseModel):
     """
     Resolve one exact canonical Gnaww Job Specification to a Recipe.
     """ # noqa: E501
-    gjs: Gjs1
+    gjs: Gjs
     __properties: ClassVar[List[str]] = ["gjs"]
 
     model_config = ConfigDict(
@@ -83,6 +83,6 @@ class ResolveRecipeRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "gjs": Gjs1.from_dict(obj["gjs"]) if obj.get("gjs") is not None else None
+            "gjs": Gjs.from_dict(obj["gjs"]) if obj.get("gjs") is not None else None
         })
         return _obj

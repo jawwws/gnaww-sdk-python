@@ -15,16 +15,16 @@ from typing_extensions import Annotated
 
 from pydantic import StrictStr
 from typing import Optional
-from gnaww_sdk.models.continue_interpretation_request_v02 import ContinueInterpretationRequestV02
-from gnaww_sdk.models.interpret_print_requirement_request import InterpretPrintRequirementRequest
-from gnaww_sdk.models.interpretation_result_v02 import InterpretationResultV02
+from gnaww_sdk.models.create_specification_request import CreateSpecificationRequest
+from gnaww_sdk.models.create_specification_response import CreateSpecificationResponse
+from gnaww_sdk.models.specification_resource import SpecificationResource
 
 from gnaww_sdk.api_client import ApiClient, RequestSerialized
 from gnaww_sdk.api_response import ApiResponse
 from gnaww_sdk.rest import RESTResponseType
 
 
-class InterpretationApi:
+class SpecificationsApi:
     """Public Gnaww API client."""
 
     def __init__(self, api_client=None) -> None:
@@ -34,9 +34,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def continue_print_requirement_interpretation(
+    def create_specification(
         self,
-        continue_interpretation_request_v02: ContinueInterpretationRequestV02,
+        create_specification_request: CreateSpecificationRequest,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -50,13 +50,13 @@ class InterpretationApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> InterpretationResultV02:
-        """Continue Print Requirement Interpretation
+    ) -> CreateSpecificationResponse:
+        """Create Specification
 
-        Continue a review state and return the same interpretation envelope.
+        Explicitly retain one completed canonical Gnaww Job Specification.
 
-        :param continue_interpretation_request_v02: (required)
-        :type continue_interpretation_request_v02: ContinueInterpretationRequestV02
+        :param create_specification_request: (required)
+        :type create_specification_request: CreateSpecificationRequest
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -81,8 +81,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._continue_print_requirement_interpretation_serialize(
-            continue_interpretation_request_v02=continue_interpretation_request_v02,
+        _param = self._create_specification_serialize(
+            create_specification_request=create_specification_request,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -91,7 +91,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "CreateSpecificationResponse",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -105,9 +105,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def continue_print_requirement_interpretation_with_http_info(
+    def create_specification_with_http_info(
         self,
-        continue_interpretation_request_v02: ContinueInterpretationRequestV02,
+        create_specification_request: CreateSpecificationRequest,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -121,13 +121,13 @@ class InterpretationApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[InterpretationResultV02]:
-        """Continue Print Requirement Interpretation
+    ) -> ApiResponse[CreateSpecificationResponse]:
+        """Create Specification
 
-        Continue a review state and return the same interpretation envelope.
+        Explicitly retain one completed canonical Gnaww Job Specification.
 
-        :param continue_interpretation_request_v02: (required)
-        :type continue_interpretation_request_v02: ContinueInterpretationRequestV02
+        :param create_specification_request: (required)
+        :type create_specification_request: CreateSpecificationRequest
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -152,8 +152,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._continue_print_requirement_interpretation_serialize(
-            continue_interpretation_request_v02=continue_interpretation_request_v02,
+        _param = self._create_specification_serialize(
+            create_specification_request=create_specification_request,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -162,7 +162,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "CreateSpecificationResponse",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -176,9 +176,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def continue_print_requirement_interpretation_without_preload_content(
+    def create_specification_without_preload_content(
         self,
-        continue_interpretation_request_v02: ContinueInterpretationRequestV02,
+        create_specification_request: CreateSpecificationRequest,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -193,12 +193,12 @@ class InterpretationApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Continue Print Requirement Interpretation
+        """Create Specification
 
-        Continue a review state and return the same interpretation envelope.
+        Explicitly retain one completed canonical Gnaww Job Specification.
 
-        :param continue_interpretation_request_v02: (required)
-        :type continue_interpretation_request_v02: ContinueInterpretationRequestV02
+        :param create_specification_request: (required)
+        :type create_specification_request: CreateSpecificationRequest
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -223,8 +223,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._continue_print_requirement_interpretation_serialize(
-            continue_interpretation_request_v02=continue_interpretation_request_v02,
+        _param = self._create_specification_serialize(
+            create_specification_request=create_specification_request,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -233,7 +233,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "CreateSpecificationResponse",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -242,9 +242,9 @@ class InterpretationApi:
         return response_data.response
 
 
-    def _continue_print_requirement_interpretation_serialize(
+    def _create_specification_serialize(
         self,
-        continue_interpretation_request_v02,
+        create_specification_request,
         x_gnaww_workspace_id,
         _request_auth,
         _content_type,
@@ -273,8 +273,8 @@ class InterpretationApi:
             _header_params['X-Gnaww-Workspace-Id'] = x_gnaww_workspace_id
         # process the form parameters
         # process the body parameter
-        if continue_interpretation_request_v02 is not None:
-            _body_params = continue_interpretation_request_v02
+        if create_specification_request is not None:
+            _body_params = create_specification_request
 
 
         # set the HTTP header `Accept`
@@ -306,7 +306,7 @@ class InterpretationApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/interpret/continue',
+            resource_path='/v1/specifications',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -323,9 +323,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def interpret_print_requirement(
+    def get_specification(
         self,
-        interpret_print_requirement_request: InterpretPrintRequirementRequest,
+        specification_id: StrictStr,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -339,13 +339,13 @@ class InterpretationApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> InterpretationResultV02:
-        """Interpret Print Requirement
+    ) -> SpecificationResource:
+        """Get Specification
 
-        Interpret ordinary input and enrich review-safe functional solution intent.
+        Read one safe specification resource visible to the request context.
 
-        :param interpret_print_requirement_request: (required)
-        :type interpret_print_requirement_request: InterpretPrintRequirementRequest
+        :param specification_id: (required)
+        :type specification_id: str
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -370,8 +370,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._interpret_print_requirement_serialize(
-            interpret_print_requirement_request=interpret_print_requirement_request,
+        _param = self._get_specification_serialize(
+            specification_id=specification_id,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -380,7 +380,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "SpecificationResource",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -394,9 +394,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def interpret_print_requirement_with_http_info(
+    def get_specification_with_http_info(
         self,
-        interpret_print_requirement_request: InterpretPrintRequirementRequest,
+        specification_id: StrictStr,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -410,13 +410,13 @@ class InterpretationApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[InterpretationResultV02]:
-        """Interpret Print Requirement
+    ) -> ApiResponse[SpecificationResource]:
+        """Get Specification
 
-        Interpret ordinary input and enrich review-safe functional solution intent.
+        Read one safe specification resource visible to the request context.
 
-        :param interpret_print_requirement_request: (required)
-        :type interpret_print_requirement_request: InterpretPrintRequirementRequest
+        :param specification_id: (required)
+        :type specification_id: str
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -441,8 +441,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._interpret_print_requirement_serialize(
-            interpret_print_requirement_request=interpret_print_requirement_request,
+        _param = self._get_specification_serialize(
+            specification_id=specification_id,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -451,7 +451,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "SpecificationResource",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -465,9 +465,9 @@ class InterpretationApi:
 
 
     @validate_call
-    def interpret_print_requirement_without_preload_content(
+    def get_specification_without_preload_content(
         self,
-        interpret_print_requirement_request: InterpretPrintRequirementRequest,
+        specification_id: StrictStr,
         x_gnaww_workspace_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -482,12 +482,12 @@ class InterpretationApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Interpret Print Requirement
+        """Get Specification
 
-        Interpret ordinary input and enrich review-safe functional solution intent.
+        Read one safe specification resource visible to the request context.
 
-        :param interpret_print_requirement_request: (required)
-        :type interpret_print_requirement_request: InterpretPrintRequirementRequest
+        :param specification_id: (required)
+        :type specification_id: str
         :param x_gnaww_workspace_id:
         :type x_gnaww_workspace_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -512,8 +512,8 @@ class InterpretationApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._interpret_print_requirement_serialize(
-            interpret_print_requirement_request=interpret_print_requirement_request,
+        _param = self._get_specification_serialize(
+            specification_id=specification_id,
             x_gnaww_workspace_id=x_gnaww_workspace_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -522,7 +522,7 @@ class InterpretationApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "InterpretationResultV02",
+            '200': "SpecificationResource",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -531,9 +531,9 @@ class InterpretationApi:
         return response_data.response
 
 
-    def _interpret_print_requirement_serialize(
+    def _get_specification_serialize(
         self,
-        interpret_print_requirement_request,
+        specification_id,
         x_gnaww_workspace_id,
         _request_auth,
         _content_type,
@@ -556,14 +556,14 @@ class InterpretationApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if specification_id is not None:
+            _path_params['specification_id'] = specification_id
         # process the query parameters
         # process the header parameters
         if x_gnaww_workspace_id is not None:
             _header_params['X-Gnaww-Workspace-Id'] = x_gnaww_workspace_id
         # process the form parameters
         # process the body parameter
-        if interpret_print_requirement_request is not None:
-            _body_params = interpret_print_requirement_request
 
 
         # set the HTTP header `Accept`
@@ -574,19 +574,6 @@ class InterpretationApi:
                 ]
             )
 
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -594,8 +581,8 @@ class InterpretationApi:
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/interpret',
+            method='GET',
+            resource_path='/v1/specifications/{specification_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

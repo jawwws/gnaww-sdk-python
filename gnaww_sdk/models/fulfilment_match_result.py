@@ -31,10 +31,33 @@ class FulfilmentMatchResult(BaseModel):
     match_reasons: Optional[List[StrictStr]] = None
     offered_maximum_delivery_working_days: Optional[StrictInt] = None
     offered_minimum_delivery_working_days: Optional[StrictInt] = None
+    offered_service_classes: Optional[List[StrictStr]] = None
     requested_maximum_delivery_working_days: Optional[StrictInt] = None
+    requested_service_class: Optional[StrictStr] = None
     service_country_codes: Optional[List[StrictStr]] = None
     status: StrictStr
-    __properties: ClassVar[List[str]] = ["destination_country_code", "issues", "match_reasons", "offered_maximum_delivery_working_days", "offered_minimum_delivery_working_days", "requested_maximum_delivery_working_days", "service_country_codes", "status"]
+    __properties: ClassVar[List[str]] = ["destination_country_code", "issues", "match_reasons", "offered_maximum_delivery_working_days", "offered_minimum_delivery_working_days", "offered_service_classes", "requested_maximum_delivery_working_days", "requested_service_class", "service_country_codes", "status"]
+
+    @field_validator('offered_service_classes')
+    def offered_service_classes_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        for i in value:
+            if i not in set(['standard', 'express', 'freight']):
+                raise ValueError("each list item must be one of ('standard', 'express', 'freight')")
+        return value
+
+    @field_validator('requested_service_class')
+    def requested_service_class_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['standard', 'express', 'freight']):
+            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        return value
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -100,6 +123,11 @@ class FulfilmentMatchResult(BaseModel):
         if self.requested_maximum_delivery_working_days is None and "requested_maximum_delivery_working_days" in self.model_fields_set:
             _dict['requested_maximum_delivery_working_days'] = None
 
+        # set to None if requested_service_class (nullable) is None
+        # and model_fields_set contains the field
+        if self.requested_service_class is None and "requested_service_class" in self.model_fields_set:
+            _dict['requested_service_class'] = None
+
         return _dict
 
     @classmethod
@@ -117,7 +145,9 @@ class FulfilmentMatchResult(BaseModel):
             "match_reasons": obj.get("match_reasons"),
             "offered_maximum_delivery_working_days": obj.get("offered_maximum_delivery_working_days"),
             "offered_minimum_delivery_working_days": obj.get("offered_minimum_delivery_working_days"),
+            "offered_service_classes": obj.get("offered_service_classes"),
             "requested_maximum_delivery_working_days": obj.get("requested_maximum_delivery_working_days"),
+            "requested_service_class": obj.get("requested_service_class"),
             "service_country_codes": obj.get("service_country_codes"),
             "status": obj.get("status")
         })
