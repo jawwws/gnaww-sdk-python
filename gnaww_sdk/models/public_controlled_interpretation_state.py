@@ -15,31 +15,29 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, Optional
-from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
+from gnaww_sdk.models.intent_provider_metadata import IntentProviderMetadata
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class PublicControlledInterpretationState(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    Safe public truth about controlled semantic interpretation.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    attempted: StrictBool
+    error: Optional[StrictStr] = None
+    metadata: Optional[IntentProviderMetadata] = None
+    provider: Optional[StrictStr] = None
+    status: StrictStr
+    __properties: ClassVar[List[str]] = ["attempted", "error", "metadata", "provider", "status"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('status')
+    def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if value not in set(['not_reported', 'not_required', 'completed', 'unavailable', 'failed']):
+            raise ValueError("must be one of enum values ('not_reported', 'not_required', 'completed', 'unavailable', 'failed')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +58,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of PublicControlledInterpretationState from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +79,29 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # override the default output from pydantic by calling `to_dict()` of metadata
+        if self.metadata:
+            _dict['metadata'] = self.metadata.to_dict()
+        # set to None if error (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
+        if self.error is None and "error" in self.model_fields_set:
+            _dict['error'] = None
 
-        # set to None if service_class (nullable) is None
+        # set to None if metadata (nullable) is None
         # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.metadata is None and "metadata" in self.model_fields_set:
+            _dict['metadata'] = None
+
+        # set to None if provider (nullable) is None
+        # and model_fields_set contains the field
+        if self.provider is None and "provider" in self.model_fields_set:
+            _dict['provider'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of PublicControlledInterpretationState from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +109,10 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "attempted": obj.get("attempted"),
+            "error": obj.get("error"),
+            "metadata": IntentProviderMetadata.from_dict(obj["metadata"]) if obj.get("metadata") is not None else None,
+            "provider": obj.get("provider"),
+            "status": obj.get("status")
         })
         return _obj

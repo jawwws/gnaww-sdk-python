@@ -19,26 +19,29 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, f
 from typing import Optional
 from gnaww_sdk.models.print_job_specification import PrintJobSpecification
 from gnaww_sdk.models.print_job_specification_v04 import PrintJobSpecificationV04
+from gnaww_sdk.models.print_job_specification_v05 import PrintJobSpecificationV05
 from typing import Union, Any, List, Set, TYPE_CHECKING, Optional, Dict
 from typing_extensions import Literal, Self
 from pydantic import Field
 
-GJS1_ANY_OF_SCHEMAS = ["PrintJobSpecification", "PrintJobSpecificationV04"]
+GJS1_ANY_OF_SCHEMAS = ["PrintJobSpecification", "PrintJobSpecificationV04", "PrintJobSpecificationV05"]
 
 class Gjs1(BaseModel):
     """
     Gjs1
     """
 
+    # data type: PrintJobSpecificationV05
+    anyof_schema_1_validator: Optional[PrintJobSpecificationV05] = None
     # data type: PrintJobSpecificationV04
-    anyof_schema_1_validator: Optional[PrintJobSpecificationV04] = None
+    anyof_schema_2_validator: Optional[PrintJobSpecificationV04] = None
     # data type: PrintJobSpecification
-    anyof_schema_2_validator: Optional[PrintJobSpecification] = None
+    anyof_schema_3_validator: Optional[PrintJobSpecification] = None
     if TYPE_CHECKING:
-        actual_instance: Optional[Union[PrintJobSpecification, PrintJobSpecificationV04]] = None
+        actual_instance: Optional[Union[PrintJobSpecification, PrintJobSpecificationV04, PrintJobSpecificationV05]] = None
     else:
         actual_instance: Any = None
-    any_of_schemas: Set[str] = { "PrintJobSpecification", "PrintJobSpecificationV04" }
+    any_of_schemas: Set[str] = { "PrintJobSpecification", "PrintJobSpecificationV04", "PrintJobSpecificationV05" }
 
     model_config = {
         "validate_assignment": True,
@@ -57,8 +60,17 @@ class Gjs1(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_anyof(cls, v):
+        if v is None:
+            return v
+
         instance = Gjs1.model_construct()
         error_messages = []
+        # validate data type: PrintJobSpecificationV05
+        if not isinstance(v, PrintJobSpecificationV05):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `PrintJobSpecificationV05`")
+        else:
+            return v
+
         # validate data type: PrintJobSpecificationV04
         if not isinstance(v, PrintJobSpecificationV04):
             error_messages.append(f"Error! Input type `{type(v)}` is not `PrintJobSpecificationV04`")
@@ -73,7 +85,7 @@ class Gjs1(BaseModel):
 
         if error_messages:
             # no match
-            raise ValueError("No match found when setting the actual_instance in Gjs1 with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting the actual_instance in Gjs1 with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04, PrintJobSpecificationV05. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -85,14 +97,23 @@ class Gjs1(BaseModel):
     def from_json(cls, json_str: str) -> Self:
         """Returns the object represented by the json string"""
         instance = cls.model_construct()
+        if json_str is None:
+            return instance
+
         error_messages = []
-        # anyof_schema_1_validator: Optional[PrintJobSpecificationV04] = None
+        # anyof_schema_1_validator: Optional[PrintJobSpecificationV05] = None
+        try:
+            instance.actual_instance = PrintJobSpecificationV05.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+             error_messages.append(str(e))
+        # anyof_schema_2_validator: Optional[PrintJobSpecificationV04] = None
         try:
             instance.actual_instance = PrintJobSpecificationV04.from_json(json_str)
             return instance
         except (ValidationError, ValueError) as e:
              error_messages.append(str(e))
-        # anyof_schema_2_validator: Optional[PrintJobSpecification] = None
+        # anyof_schema_3_validator: Optional[PrintJobSpecification] = None
         try:
             instance.actual_instance = PrintJobSpecification.from_json(json_str)
             return instance
@@ -101,7 +122,7 @@ class Gjs1(BaseModel):
 
         if error_messages:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Gjs1 with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Gjs1 with anyOf schemas: PrintJobSpecification, PrintJobSpecificationV04, PrintJobSpecificationV05. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -115,7 +136,7 @@ class Gjs1(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], PrintJobSpecification, PrintJobSpecificationV04]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], PrintJobSpecification, PrintJobSpecificationV04, PrintJobSpecificationV05]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

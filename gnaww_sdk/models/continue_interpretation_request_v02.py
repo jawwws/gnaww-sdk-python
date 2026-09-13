@@ -17,21 +17,21 @@ import json
 
 from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from gnaww_sdk.models.public_clarification_answer import PublicClarificationAnswer
+from gnaww_sdk.models.public_interpretation_continuation_answer import PublicInterpretationContinuationAnswer
 from gnaww_sdk.models.source_input import SourceInput
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ContinuePrintRequirementRequest(BaseModel):
+class ContinueInterpretationRequestV02(BaseModel):
     """
-    Stateless continuation of a prior ordinary-language requirement.
+    Stateless continuation request keyed by public question identities.
     """ # noqa: E501
-    answers: Optional[List[PublicClarificationAnswer]] = None
+    answers: Optional[List[PublicInterpretationContinuationAnswer]] = None
     gjs_version: Optional[StrictStr] = '0.4'
     matching_mode: Optional[StrictStr] = 'single_target'
     schema_name: Optional[StrictStr] = 'gnaww.interpretation_continuation_request'
-    schema_version: Optional[StrictStr] = '0.1'
+    schema_version: Optional[StrictStr] = '0.2'
     source: SourceInput
     __properties: ClassVar[List[str]] = ["answers", "gjs_version", "matching_mode", "schema_name", "schema_version", "source"]
 
@@ -71,8 +71,8 @@ class ContinuePrintRequirementRequest(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['0.1']):
-            raise ValueError("must be one of enum values ('0.1')")
+        if value not in set(['0.2']):
+            raise ValueError("must be one of enum values ('0.2')")
         return value
 
     model_config = ConfigDict(
@@ -93,7 +93,7 @@ class ContinuePrintRequirementRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ContinuePrintRequirementRequest from a JSON string"""
+        """Create an instance of ContinueInterpretationRequestV02 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -128,7 +128,7 @@ class ContinuePrintRequirementRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ContinuePrintRequirementRequest from a dict"""
+        """Create an instance of ContinueInterpretationRequestV02 from a dict"""
         if obj is None:
             return None
 
@@ -136,11 +136,11 @@ class ContinuePrintRequirementRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "answers": [PublicClarificationAnswer.from_dict(_item) for _item in obj["answers"]] if obj.get("answers") is not None else None,
+            "answers": [PublicInterpretationContinuationAnswer.from_dict(_item) for _item in obj["answers"]] if obj.get("answers") is not None else None,
             "gjs_version": obj.get("gjs_version") if obj.get("gjs_version") is not None else '0.4',
             "matching_mode": obj.get("matching_mode") if obj.get("matching_mode") is not None else 'single_target',
             "schema_name": obj.get("schema_name") if obj.get("schema_name") is not None else 'gnaww.interpretation_continuation_request',
-            "schema_version": obj.get("schema_version") if obj.get("schema_version") is not None else '0.1',
+            "schema_version": obj.get("schema_version") if obj.get("schema_version") is not None else '0.2',
             "source": SourceInput.from_dict(obj["source"]) if obj.get("source") is not None else None
         })
         return _obj

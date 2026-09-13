@@ -16,30 +16,30 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
+from typing import Any, ClassVar, Dict, Optional, Union
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class PublicUnderstoodSize(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    Deterministically understood size evidence that is not yet canonical GJS.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    height_mm: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = None
+    orientation: Optional[StrictStr] = None
+    standard_name: Optional[StrictStr] = None
+    width_mm: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = None
+    __properties: ClassVar[List[str]] = ["height_mm", "orientation", "standard_name", "width_mm"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('orientation')
+    def orientation_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if value not in set(['portrait', 'landscape', 'square']):
+            raise ValueError("must be one of enum values ('portrait', 'landscape', 'square')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +60,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of PublicUnderstoodSize from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +81,31 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # set to None if height_mm (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
+        if self.height_mm is None and "height_mm" in self.model_fields_set:
+            _dict['height_mm'] = None
 
-        # set to None if service_class (nullable) is None
+        # set to None if orientation (nullable) is None
         # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.orientation is None and "orientation" in self.model_fields_set:
+            _dict['orientation'] = None
+
+        # set to None if standard_name (nullable) is None
+        # and model_fields_set contains the field
+        if self.standard_name is None and "standard_name" in self.model_fields_set:
+            _dict['standard_name'] = None
+
+        # set to None if width_mm (nullable) is None
+        # and model_fields_set contains the field
+        if self.width_mm is None and "width_mm" in self.model_fields_set:
+            _dict['width_mm'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of PublicUnderstoodSize from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +113,9 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "height_mm": obj.get("height_mm"),
+            "orientation": obj.get("orientation"),
+            "standard_name": obj.get("standard_name"),
+            "width_mm": obj.get("width_mm")
         })
         return _obj

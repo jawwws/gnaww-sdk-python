@@ -15,32 +15,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, Optional, Union
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class AppModelsManufacturingGeometryMaterialCompositionPart(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    One controlled constituent of a manufactured material.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
-
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
-        return value
+    name: Annotated[str, Field(min_length=1, strict=True)]
+    percentage: Optional[Union[Annotated[float, Field(le=100.0, strict=True, gt=0.0)], Annotated[int, Field(le=100, strict=True, gt=0)]]] = None
+    __properties: ClassVar[List[str]] = ["name", "percentage"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -60,7 +48,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of AppModelsManufacturingGeometryMaterialCompositionPart from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +69,16 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # set to None if percentage (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
-
-        # set to None if service_class (nullable) is None
-        # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.percentage is None and "percentage" in self.model_fields_set:
+            _dict['percentage'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of AppModelsManufacturingGeometryMaterialCompositionPart from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +86,7 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "name": obj.get("name"),
+            "percentage": obj.get("percentage")
         })
         return _obj

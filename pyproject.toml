@@ -1,6 +1,6 @@
 [project]
 name = "gnaww-sdk"
-version = "0.1.0"
+version = "0.2.0"
 description = "Official Python SDK for the Gnaww print intelligence API."
 authors = [
   {name = "Jawwws Ltd"},

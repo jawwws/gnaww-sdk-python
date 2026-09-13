@@ -18,28 +18,28 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, Optional
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
+from gnaww_sdk.models.rectangle2_d import Rectangle2D
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class FoldPanel(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    One physical panel in flat/input coordinates, not a printed face/page count.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    area: Rectangle2D
+    panel_id: Annotated[str, Field(strict=True)]
+    role: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["area", "panel_id", "role"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
+    @field_validator('panel_id')
+    def panel_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not isinstance(value, str):
+            value = str(value)
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +60,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of FoldPanel from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +81,19 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # override the default output from pydantic by calling `to_dict()` of area
+        if self.area:
+            _dict['area'] = self.area.to_dict()
+        # set to None if role (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
-
-        # set to None if service_class (nullable) is None
-        # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.role is None and "role" in self.model_fields_set:
+            _dict['role'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of FoldPanel from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +101,8 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "area": Rectangle2D.from_dict(obj["area"]) if obj.get("area") is not None else None,
+            "panel_id": obj.get("panel_id"),
+            "role": obj.get("role")
         })
         return _obj

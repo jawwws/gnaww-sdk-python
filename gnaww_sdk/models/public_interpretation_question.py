@@ -18,25 +18,27 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from gnaww_sdk.models.public_clarification_option import PublicClarificationOption
+from gnaww_sdk.models.public_interpretation_question_option import PublicInterpretationQuestionOption
+from gnaww_sdk.models.public_interpretation_scope import PublicInterpretationScope
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PublicClarificationQuestion(BaseModel):
+class PublicInterpretationQuestion(BaseModel):
     """
-    One Gnaww-owned question needed to progress buyer demand.
+    Stable scoped question without exposing private canonical field paths.
     """ # noqa: E501
     current_value: Optional[StrictStr] = None
-    field_path: Annotated[str, Field(min_length=1, strict=True)]
     input_type: Optional[StrictStr] = 'single_select'
-    key: Annotated[str, Field(strict=True)]
-    options: Optional[List[PublicClarificationOption]] = None
+    options: Optional[List[PublicInterpretationQuestionOption]] = None
     question: Annotated[str, Field(min_length=1, strict=True)]
+    question_id: Annotated[str, Field(strict=True)]
     rationale: Annotated[str, Field(min_length=1, strict=True)]
     required: Optional[StrictBool] = True
+    scope: PublicInterpretationScope
     source: StrictStr
-    __properties: ClassVar[List[str]] = ["current_value", "field_path", "input_type", "key", "options", "question", "rationale", "required", "source"]
+    suggested_value: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["current_value", "input_type", "options", "question", "question_id", "rationale", "required", "scope", "source", "suggested_value"]
 
     @field_validator('input_type')
     def input_type_validate_enum(cls, value):
@@ -48,31 +50,21 @@ class PublicClarificationQuestion(BaseModel):
             raise ValueError("must be one of enum values ('single_select', 'text', 'integer')")
         return value
 
-    @field_validator('key')
-    def key_validate_regular_expression(cls, value):
+    @field_validator('question_id')
+    def question_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not isinstance(value, str):
             value = str(value)
 
-        if not re.match(r"^[a-z][a-z0-9_.\[\]]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9_.\[\]]*$/")
-        return value
-
-    @field_validator('required')
-    def required_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['true']):
-            raise ValueError("must be one of enum values ('true')")
+        if not re.match(r"^[a-z][a-z0-9_.\[\]-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9_.\[\]-]*$/")
         return value
 
     @field_validator('source')
     def source_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['use_requirement', 'canonical_field', 'fulfilment_requirement']):
-            raise ValueError("must be one of enum values ('use_requirement', 'canonical_field', 'fulfilment_requirement')")
+        if value not in set(['use_requirement', 'canonical_field', 'fulfilment_requirement', 'intent']):
+            raise ValueError("must be one of enum values ('use_requirement', 'canonical_field', 'fulfilment_requirement', 'intent')")
         return value
 
     model_config = ConfigDict(
@@ -93,7 +85,7 @@ class PublicClarificationQuestion(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PublicClarificationQuestion from a JSON string"""
+        """Create an instance of PublicInterpretationQuestion from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -121,16 +113,24 @@ class PublicClarificationQuestion(BaseModel):
                 if _item_options:
                     _items.append(_item_options.to_dict())
             _dict['options'] = _items
+        # override the default output from pydantic by calling `to_dict()` of scope
+        if self.scope:
+            _dict['scope'] = self.scope.to_dict()
         # set to None if current_value (nullable) is None
         # and model_fields_set contains the field
         if self.current_value is None and "current_value" in self.model_fields_set:
             _dict['current_value'] = None
 
+        # set to None if suggested_value (nullable) is None
+        # and model_fields_set contains the field
+        if self.suggested_value is None and "suggested_value" in self.model_fields_set:
+            _dict['suggested_value'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PublicClarificationQuestion from a dict"""
+        """Create an instance of PublicInterpretationQuestion from a dict"""
         if obj is None:
             return None
 
@@ -139,13 +139,14 @@ class PublicClarificationQuestion(BaseModel):
 
         _obj = cls.model_validate({
             "current_value": obj.get("current_value"),
-            "field_path": obj.get("field_path"),
             "input_type": obj.get("input_type") if obj.get("input_type") is not None else 'single_select',
-            "key": obj.get("key"),
-            "options": [PublicClarificationOption.from_dict(_item) for _item in obj["options"]] if obj.get("options") is not None else None,
+            "options": [PublicInterpretationQuestionOption.from_dict(_item) for _item in obj["options"]] if obj.get("options") is not None else None,
             "question": obj.get("question"),
+            "question_id": obj.get("question_id"),
             "rationale": obj.get("rationale"),
             "required": obj.get("required") if obj.get("required") is not None else True,
-            "source": obj.get("source")
+            "scope": PublicInterpretationScope.from_dict(obj["scope"]) if obj.get("scope") is not None else None,
+            "source": obj.get("source"),
+            "suggested_value": obj.get("suggested_value")
         })
         return _obj

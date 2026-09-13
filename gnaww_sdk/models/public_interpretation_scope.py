@@ -15,20 +15,26 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PublicClarificationOption(BaseModel):
+class PublicInterpretationScope(BaseModel):
     """
-    One controlled value offered for a guided clarification.
+    Explicit public scope for a shared or Job-owned fact or question.
     """ # noqa: E501
-    label: Annotated[str, Field(min_length=1, strict=True)]
-    value: Annotated[str, Field(min_length=1, strict=True)]
-    __properties: ClassVar[List[str]] = ["label", "value"]
+    job_id: Optional[StrictStr] = None
+    type: StrictStr
+    __properties: ClassVar[List[str]] = ["job_id", "type"]
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['shared', 'job']):
+            raise ValueError("must be one of enum values ('shared', 'job')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -48,7 +54,7 @@ class PublicClarificationOption(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PublicClarificationOption from a JSON string"""
+        """Create an instance of PublicInterpretationScope from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +75,16 @@ class PublicClarificationOption(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if job_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.job_id is None and "job_id" in self.model_fields_set:
+            _dict['job_id'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PublicClarificationOption from a dict"""
+        """Create an instance of PublicInterpretationScope from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +92,7 @@ class PublicClarificationOption(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "label": obj.get("label"),
-            "value": obj.get("value")
+            "job_id": obj.get("job_id"),
+            "type": obj.get("type")
         })
         return _obj

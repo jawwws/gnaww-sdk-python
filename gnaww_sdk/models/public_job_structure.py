@@ -16,30 +16,49 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from gnaww_sdk.models.delivery_destination import DeliveryDestination
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class FulfilmentRequirement(BaseModel):
+class PublicJobStructure(BaseModel):
     """
-    Buyer fulfilment requirement kept outside Recipe identity.
+    A semantic Variant, Component or Operation kept within one Job.
     """ # noqa: E501
-    destination: DeliveryDestination
-    maximum_delivery_working_days: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    service_class: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["destination", "maximum_delivery_working_days", "service_class"]
+    kind: StrictStr
+    label: Annotated[str, Field(min_length=1, strict=True)]
+    provenance: Optional[StrictStr] = 'supplied'
+    source_expression: Optional[StrictStr] = None
+    structure_id: Annotated[str, Field(strict=True)]
+    values: Optional[Annotated[List[StrictStr], Field(max_length=20)]] = None
+    __properties: ClassVar[List[str]] = ["kind", "label", "provenance", "source_expression", "structure_id", "values"]
 
-    @field_validator('service_class')
-    def service_class_validate_enum(cls, value):
+    @field_validator('kind')
+    def kind_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['variant', 'component', 'operation']):
+            raise ValueError("must be one of enum values ('variant', 'component', 'operation')")
+        return value
+
+    @field_validator('provenance')
+    def provenance_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
-        if value not in set(['standard', 'express', 'freight']):
-            raise ValueError("must be one of enum values ('standard', 'express', 'freight')")
+        if value not in set(['supplied', 'derived', 'confirmed', 'controlled']):
+            raise ValueError("must be one of enum values ('supplied', 'derived', 'confirmed', 'controlled')")
+        return value
+
+    @field_validator('structure_id')
+    def structure_id_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^[a-z][a-z0-9_.-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9_.-]*$/")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +79,7 @@ class FulfilmentRequirement(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a JSON string"""
+        """Create an instance of PublicJobStructure from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,24 +100,16 @@ class FulfilmentRequirement(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of destination
-        if self.destination:
-            _dict['destination'] = self.destination.to_dict()
-        # set to None if maximum_delivery_working_days (nullable) is None
+        # set to None if source_expression (nullable) is None
         # and model_fields_set contains the field
-        if self.maximum_delivery_working_days is None and "maximum_delivery_working_days" in self.model_fields_set:
-            _dict['maximum_delivery_working_days'] = None
-
-        # set to None if service_class (nullable) is None
-        # and model_fields_set contains the field
-        if self.service_class is None and "service_class" in self.model_fields_set:
-            _dict['service_class'] = None
+        if self.source_expression is None and "source_expression" in self.model_fields_set:
+            _dict['source_expression'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FulfilmentRequirement from a dict"""
+        """Create an instance of PublicJobStructure from a dict"""
         if obj is None:
             return None
 
@@ -106,8 +117,11 @@ class FulfilmentRequirement(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destination": DeliveryDestination.from_dict(obj["destination"]) if obj.get("destination") is not None else None,
-            "maximum_delivery_working_days": obj.get("maximum_delivery_working_days"),
-            "service_class": obj.get("service_class")
+            "kind": obj.get("kind"),
+            "label": obj.get("label"),
+            "provenance": obj.get("provenance") if obj.get("provenance") is not None else 'supplied',
+            "source_expression": obj.get("source_expression"),
+            "structure_id": obj.get("structure_id"),
+            "values": obj.get("values")
         })
         return _obj
